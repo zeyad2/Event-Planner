@@ -1,5 +1,11 @@
 # app/core/config.py
 from pydantic_settings import BaseSettings
+import os
+from pathlib import Path
+
+# Get the server directory (parent of app directory)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_FILE = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     DATABASE_URL: str = ""
@@ -9,8 +15,13 @@ class Settings(BaseSettings):
     DEBUG: bool = False  # default if not in .env
 
     class Config:
-        env_file = ".env"   # path to your .env file
+        env_file = str(ENV_FILE)
         env_file_encoding = "utf-8"
 
 # Create a single settings instance to import anywhere
 settings = Settings()
+
+# Debug: print to verify settings are loaded
+if settings.DEBUG:
+    print(f"Loading .env from: {ENV_FILE}")
+    print(f"DATABASE_URL loaded: {'Yes' if settings.DATABASE_URL else 'No'}")
