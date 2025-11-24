@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from app.db.session import Base, engine
-from app.api.v1.api import api_router
+from .db.session import Base, engine
+from .api.v1.api import api_router
 import traceback
 import logging
 
