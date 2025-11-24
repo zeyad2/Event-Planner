@@ -9,7 +9,7 @@ ENV_FILE = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     # Default for local development (fix spelling of dialect)
-    DATABASE_URL: str = "postgresql://postgres:root@localhost:5432/Events"
+    DATABASE_URL: str = "postgresql://postgres:123@localhost:5432/Events"
     SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_DAYS: int = 7
@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = str(ENV_FILE)
         env_file_encoding = "utf-8"
+        case_sensitive = False
 
 # Create a single settings instance to import anywhere
 settings = Settings()
