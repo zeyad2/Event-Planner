@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.openapi.docs import get_swagger_ui_html
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import Base, engine
 from app.api.v1.api import api_router
@@ -7,7 +9,7 @@ from app.models import User, Event, EventInvitee  # Import all models
 import traceback
 import logging
 
-# Configure logging
+# logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -16,16 +18,14 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Planner")
 
-# Configure CORS - MUST be added before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],  # Vite ports and React default
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Allow all headers
 )
 
-# Health check endpoint
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "cors_configured": True}
@@ -33,7 +33,21 @@ async def health_check():
 # Include routers
 app.include_router(api_router, prefix="/api")
 
-# Add exception handler for better error visibility
+# --- JSON swagger ---
+@app.get("/api-design", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url="/api-design/openapi.json",
+        title="Event Planner API - Design Spec"
+    )
+
+@app.get("/api-design/openapi.json", include_in_schema=False)
+async def get_custom_openapi():
+    file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "openapi.json")
+    return FileResponse(file_path)
+
+
+# global handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global exception handler caught: {exc}")

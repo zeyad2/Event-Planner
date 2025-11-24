@@ -19,8 +19,6 @@ def search_events_fulltext(query: Query, keyword: str) -> Query:
 
 
 def prepare_tsquery(keyword: str) -> str:
-    # Prepare a keyword for PostgreSQL tsquery.
-    # Handles multiple words and special characters.
     
     if not keyword:
         return ""

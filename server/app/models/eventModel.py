@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Index, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, Index, func, text
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 import enum
@@ -21,11 +21,10 @@ class Event(Base):
     invitees = relationship("EventInvitee", back_populates="event", cascade="all, delete-orphan")
 
     # Full-text search index on title and description
-    # PostgreSQL specific: Create GIN index for full-text search
     __table_args__ = (
         Index(
             'ix_events_fulltext',
-            func.to_tsvector('english', func.coalesce(title, '') + ' ' + func.coalesce(description, '')),
+            text("to_tsvector('english', COALESCE(title, '') || ' ' || COALESCE(description, ''))"),
             postgresql_using='gin'
         ),
     )
