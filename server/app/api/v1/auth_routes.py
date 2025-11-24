@@ -4,15 +4,15 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import Annotated, Optional, cast
-from app.db.session import SessionLocal
-from app.models.userModel import User
-from app.schemas.user import Users
+from ...db.session import SessionLocal
+from ...models.userModel import User
+from ...schemas.user import Users
 from starlette import status
 import bcrypt
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from app.config.config import Settings, settings
+from ...config.config import Settings, settings
 
 
 
