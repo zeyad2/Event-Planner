@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.session import Base, engine
 from app.api.v1.api import api_router
+from app.models import User, Event, EventInvitee  # Import all models
 import traceback
 import logging
 
@@ -10,6 +11,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+# Create all database tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Planner")
