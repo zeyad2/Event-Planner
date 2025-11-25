@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import Annotated, Optional, cast
 from ...db.session import SessionLocal
 from ...models.userModel import User
-from ...schemas.user import Users
+from ...schemas.user import Users, UserOut
 from starlette import status
 import bcrypt
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -82,10 +82,7 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
             detail="Username or email already exists"
         )
  
-    return Users(
-        username=str(create_user_model.username),
-        email=str(create_user_model.email)
-    )
+    return create_user_model
     
 
 
@@ -120,6 +117,7 @@ def authenticate_user(email_or_username: str, password: str, db: Session) -> Opt
     if not verify_password(password, str(user.hashed_password)):
         return None
     return user
+
 def create_access_token(username: str, user_id: int, expires_delta: timedelta ):
     encode = {"sub": username, "id": user_id}
     expires = datetime.utcnow() + expires_delta
@@ -143,3 +141,34 @@ async def login_user(login_data: LoginRequest, db: db_dependency):
         "token_type": "bearer",
         "user": Users(username=str(user.username), email=str(user.email))
     }
+
+# isAuthenticated middleware: authenticate token, extract user id and username from token
+async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: db_dependency):
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        username: str = payload.get("sub")
+        user_id: int = payload.get("id")
+        print(username)
+        print(user_id)
+        if username is None or user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+

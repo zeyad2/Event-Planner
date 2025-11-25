@@ -125,7 +125,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/User"
+                                    "$ref": "#/components/schemas/UserMe"
                                 }
                             }
                         }
@@ -553,6 +553,25 @@
                     "email": {
                         "type": "string",
                         "format": "email"
+                    }
+                }
+            },
+            "UserMe": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
