@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Annotated
+from typing import Annotated, List
 from ...db.session import SessionLocal
-from ...models.eventModel import Event
+from ...models.eventModel import Event, EventInvitee
 from ...models.userModel import User
-from ...schemas.event import EventCreate, EventUpdate, EventOut
+from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse
 from .dependencies import require_organizer
 from .auth_routes import get_current_user
 
@@ -123,3 +123,58 @@ async def delete_event(
     
     # 204
     return None
+
+
+@router.post("/{event_id}/attendees/invite", status_code=status.HTTP_207_MULTI_STATUS, response_model=InviteResponse)
+async def invite_users_to_event(
+    event_id: int,
+    invite_data: InviteRequest,
+    db: db_dependency,
+    current_user: organizer_dependency
+):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"event with given with id {event_id} not found")
+    
+    if event.organizer_user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, 
+        detail="only the event organizer can invite users")
+    
+    invited_emails = []
+    failed_emails = []
+    
+    for email in invite_data.emails:
+        try:
+            user = db.query(User).filter(User.email == email).first()
+            if not user:
+                failed_emails.append({"email": email, "reason": "user not found"})
+                continue
+            
+            if user.id == current_user.id:
+                failed_emails.append({"email": email,"reason": "cannot invite yourself"})
+                continue
+            
+            existing_invite = db.query(EventInvitee).filter(
+                EventInvitee.event_id == event_id,
+                EventInvitee.user_id == user.id
+            ).first()
+            
+            if existing_invite:
+                failed_emails.append({"email": email, "reason": "already invited"})
+                continue
+            
+            new_invite = EventInvitee(event_id=event_id, user_id=user.id)
+            
+            db.add(new_invite)
+            db.commit()
+            invited_emails.append(email)
+            
+        except Exception as e:
+            db.rollback()
+            failed_emails.append({"email": email, "reason": f"error: {str(e)}"})
+    
+    return InviteResponse(invited_emails=invited_emails, failed_emails=failed_emails)
+
+
+
