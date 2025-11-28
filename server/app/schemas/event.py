@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
+from app.models.eventModel import InviteeStatus
 
 
 class EventBase(BaseModel):
@@ -38,3 +39,7 @@ class InviteRequest(BaseModel):
 class InviteResponse(BaseModel):
     invited_emails: List[str]
     failed_emails: List[dict] = []
+
+
+class StatusUpdate(BaseModel):
+    status: InviteeStatus

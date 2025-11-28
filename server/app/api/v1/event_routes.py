@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Annotated, List
+from datetime import datetime
 from ...db.session import SessionLocal
 from ...models.eventModel import Event, EventInvitee
 from ...models.userModel import User
-from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse
+from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse, StatusUpdate
 from .dependencies import require_organizer
 from .auth_routes import get_current_user
 
@@ -177,4 +178,36 @@ async def invite_users_to_event(
     return InviteResponse(invited_emails=invited_emails, failed_emails=failed_emails)
 
 
+@router.patch("/{event_id}/attendees/status", status_code=status.HTTP_200_OK)
+async def update_attendance_status(
+    event_id: int,
+    status_update: StatusUpdate,
+    db: db_dependency,
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"event with id {event_id} not found")
+    
+    invitation = db.query(EventInvitee).filter(
+        EventInvitee.event_id == event_id,
+        EventInvitee.user_id == current_user.id
+    ).first()
+    
+    print(current_user.id)
+    print(event.id)
+    if not invitation:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="user is not invited")
+    
+    current_time = datetime.utcnow()
+    if event.event_ends_at <= current_time:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="cannot update status for an event that has already ended")
+    
+    invitation.status = status_update.status
+    
+    db.commit()
+    db.refresh(invitation)
+    
+    return {"status": invitation.status.value}
 
