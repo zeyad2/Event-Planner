@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import Annotated, Optional, cast
 from ...db.session import SessionLocal
-from ...models.userModel import User
+from ...models.userModel import User, UserRole
 from ...schemas.user import Users, UserOut
 from starlette import status
 import bcrypt
@@ -51,6 +51,7 @@ class CreateUserRequest(BaseModel):
     username: str
     email: str
     password: str
+    role: UserRole = UserRole.USER
 
 class LoginRequest(BaseModel):
     email_or_username: str
@@ -69,7 +70,8 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
     create_user_model = User(
         username=create_user_request.username,
         email=create_user_request.email,
-        hashed_password=hash_password(create_user_request.password)
+        hashed_password=hash_password(create_user_request.password),
+        role=create_user_request.role
     )
     db.add(create_user_model)
     try:
@@ -139,7 +141,7 @@ async def login_user(login_data: LoginRequest, db: db_dependency):
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": Users(username=str(user.username), email=str(user.email))
+        "user": Users(username=str(user.username), email=str(user.email), role=user.role)
     }
 
 # isAuthenticated middleware: authenticate token, extract user id and username from token
