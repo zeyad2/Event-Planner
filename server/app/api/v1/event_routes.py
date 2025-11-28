@@ -1,4 +1,3 @@
-from app.schemas.event import PaginatedEventList
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -27,7 +26,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 organizer_dependency = Annotated[User, Depends(require_organizer)]
 
 
-@router.get("", status_code=status.HTTP_200_OK, response_model=PaginatedEventList)
+@router.get("", status_code=status.HTTP_200_OK, response_model=List[EventListItem])
 async def list_events(
     db: db_dependency,
     current_user: Annotated[User, Depends(get_current_user)],
@@ -74,16 +73,11 @@ async def list_events(
     
     query = query.order_by(Event.event_starts_at.asc())
     
-
-    matchedCount = query.count()
-
-
-
     query = query.offset(skip).limit(limit)
 
     results = query.all()
     print("Query Results: ", results)
-    return PaginatedEventList(count=matchedCount, data=results)
+    return results
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=EventOut)
