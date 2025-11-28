@@ -85,8 +85,5 @@ class EventListItem(BaseModel):
 
 
 class PaginatedEventList(BaseModel):
-    total: int
-    limit: int
-    skip: int
-    total_pages: int
-    events: List[EventListItem]
+    count: int
+    data: List[EventListItem]
