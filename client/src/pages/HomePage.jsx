@@ -13,34 +13,44 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="text-center">
         <h1 className="text-6xl font-bold text-gray-800 mb-4">Event Planner</h1>
         <p className="text-xl text-gray-600 mb-8">Plan and manage your events with ease</p>
 
         {isLoggedIn ? (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <p className="text-2xl text-gray-700">
               Welcome back, <span className="font-bold text-blue-600">{user?.username || 'User'}</span>!
             </p>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-red-600 transition duration-200"
-            >
-              Logout
-            </button>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => navigate('/events')}
+                className="bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 transition"
+              >
+                View Events
+              </button>
+              {user?.role === 'organizer' && (
+                <button
+                  onClick={() => navigate('/events/create')}
+                  className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-50 transition"
+                >
+                  Create Event
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex gap-4 justify-center">
             <Link
               to="/login"
-              className="bg-white text-blue-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition duration-200 border-2 border-blue-600"
+              className="bg-white text-blue-600 font-semibold py-3 px-6 rounded-md border border-blue-600 hover:bg-blue-50 transition"
             >
               Log In
             </Link>
             <Link
               to="/signup"
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transition duration-200"
+              className="bg-blue-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-blue-700 transition"
             >
               Sign Up
             </Link>

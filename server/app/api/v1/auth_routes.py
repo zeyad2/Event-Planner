@@ -45,7 +45,7 @@ class Token(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str
-    user: Users
+    user: UserOut
 
 class CreateUserRequest(BaseModel):
     username: str
@@ -141,15 +141,15 @@ async def login_user(login_data: LoginRequest, db: db_dependency):
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": Users(username=str(user.username), email=str(user.email), role=user.role)
+        "user": UserOut.model_validate(user)
     }
 
 # isAuthenticated middleware: authenticate token, extract user id and username from token
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: db_dependency):
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        username: str = payload.get("sub")
-        user_id: int = payload.get("id")
+        username: Optional[str] = payload.get("sub")
+        user_id: Optional[int] = payload.get("id")
         print(username)
         print(user_id)
         if username is None or user_id is None:

@@ -13,6 +13,7 @@ export const signupSchema = z
     email: z.string().email("invalid email address"),
     password: z.string().min(6, "password should be atleast 6 charachters"),
     confirmPassword: z.string(),
+    role: z.enum(["user", "organizer"]).default("user"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "passwords must match",
