@@ -21,7 +21,15 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      const response = await apiClient.post("/auth/signup", data);
+      // Always default to 'user' role unless explicitly set
+      const signupData = {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        role: data.role || 'user'
+      };
+
+      const response = await apiClient.post("/auth/signup", signupData);
       setSuccess(true);
 
       // Redirect after a short delay to show success message
@@ -112,6 +120,26 @@ const Signup = () => {
             />
             {errors.confirmPassword && (
               <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+
+          {/* TESTING ONLY: Uncomment this section to create organizer accounts for testing */}
+
+          <div>
+            <label htmlFor="role" className="block text-sm font-semibold text-gray-700 mb-2">
+              Account Type
+            </label>
+            <select
+              id="role"
+              {...register("role")}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+              disabled={isSubmitting}
+            >
+              <option value="user">User</option>
+              <option value="organizer">Organizer</option>
+            </select>
+            {errors.role && (
+              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
             )}
           </div>
 

@@ -80,6 +80,36 @@ async def list_events(
     return results
 
 
+@router.get("/{event_id}", status_code=status.HTTP_200_OK, response_model=EventOut)
+async def get_event(
+    event_id: int,
+    db: db_dependency,
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    event = db.query(Event).filter(Event.id == event_id).first()
+
+    if not event:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Event with id {event_id} not found"
+        )
+
+    # Check if user has access to this event (organizer or invited)
+    is_organizer = event.organizer_user_id == current_user.id
+    invitation = db.query(EventInvitee).filter(
+        EventInvitee.event_id == event_id,
+        EventInvitee.user_id == current_user.id
+    ).first()
+
+    if not is_organizer and not invitation:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this event"
+        )
+
+    return event
+
+
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=EventOut)
 async def create_event(
     event_data: EventCreate,
