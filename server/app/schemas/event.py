@@ -63,3 +63,30 @@ class AttendeeOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class EventListItem(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    event_starts_at: datetime
+    event_ends_at: datetime
+    organizer_user_id: int
+    created_at: datetime
+    updated_at: datetime
+    is_organizer: bool
+    role: Optional[InviteeRole] = None
+    status: Optional[InviteeStatus] = None
+    invited_at: Optional[datetime] = None
+    status_updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PaginatedEventList(BaseModel):
+    total: int
+    limit: int
+    skip: int
+    total_pages: int
+    events: List[EventListItem]

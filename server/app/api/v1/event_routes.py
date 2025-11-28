@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import Annotated, List
+from sqlalchemy import or_
+from typing import Annotated, List, Optional
 from datetime import datetime
 from ...db.session import SessionLocal
 from ...models.eventModel import Event, EventInvitee
-from ...models.userModel import User
-from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse, StatusUpdate, AttendeeOut
+from ...models.userModel import User, UserRole
+from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse, StatusUpdate, AttendeeOut, EventListItem
 from .dependencies import require_organizer
 from .auth_routes import get_current_user
 
@@ -23,6 +24,60 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 organizer_dependency = Annotated[User, Depends(require_organizer)]
+
+
+@router.get("", status_code=status.HTTP_200_OK, response_model=List[EventListItem])
+async def list_events(
+    db: db_dependency,
+    current_user: Annotated[User, Depends(get_current_user)],
+    keyword: Optional[str] = Query(None, description="filter by title and description"),
+    starts_at: Optional[datetime] = Query(None, description="filter events starting after this date"),
+    ends_at: Optional[datetime] = Query(None, description="filter events ending before this date"),
+    user_role: Optional[str] = Query(None, description="Filter by user role: 'organizzer' or 'user'"),
+    limit: int = Query(10, ge=1, le=100),
+    skip: int = Query(0, ge=0)
+):
+    
+    if user_role == "organizer" and current_user.role != UserRole.ORGANIZER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="only users with organizer role can filter by userRole=organizer")
+    
+    query = db.query(
+        Event.id,
+        Event.title,
+        Event.description,
+        Event.event_starts_at,
+        Event.event_ends_at,
+        Event.organizer_user_id,
+        Event.created_at,
+        Event.updated_at,
+        (Event.organizer_user_id == current_user.id).label('is_organizer'),
+        EventInvitee.role.label('role'),
+        EventInvitee.status.label('status'),
+        EventInvitee.created_at.label('invited_at'),
+        EventInvitee.status_last_changed_at.label('status_updated_at')
+    ).outerjoin(EventInvitee, (EventInvitee.event_id == Event.id) & (EventInvitee.user_id == current_user.id)
+    ).filter(or_(Event.organizer_user_id == current_user.id, EventInvitee.user_id == current_user.id))
+
+
+    # if organizer only filter by organizer
+    if user_role == "organizer":
+        query = query.filter(Event.organizer_user_id == current_user.id)
+    # if user only filter by invited
+    elif user_role == "user":
+        query = query.filter(EventInvitee.user_id == current_user.id)
+    
+    if starts_at:
+        query = query.filter(Event.event_starts_at>= starts_at)
+    if ends_at:
+        query= query.filter(Event.event_ends_at <= ends_at)
+    
+    query = query.order_by(Event.event_starts_at.asc())
+    
+    query = query.offset(skip).limit(limit)
+
+    results = query.all()
+    print("Query Results: ", results)
+    return results
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=EventOut)
