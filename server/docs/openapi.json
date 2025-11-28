@@ -457,20 +457,12 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Invitations sent successfully",
+                    "207": {
+                        "description": "Partial success: some invitations succeeded, others failed",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "invited_emails": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/InviteResponse"
                                 }
                             }
                         }
@@ -479,10 +471,7 @@
                         "description": "Not authorized (not organizer)"
                     },
                     "404": {
-                        "description": "Event not found or invalid email"
-                    },
-                    "409": {
-                        "description": "User already invited or organizer inviting self"
+                        "description": "Event not found"
                     }
                 }
             }
@@ -753,6 +742,35 @@
                         "items": {
                             "type": "string",
                             "format": "email"
+                        },
+                        "minItems": 1,
+                        "maxItems": 10
+                    }
+                }
+            },
+            "InviteResponse": {
+                "type": "object",
+                "properties": {
+                    "invited_emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "email"
+                        }
+                    },
+                    "failed_emails": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "reason": {
+                                    "type": "string"
+                                }
+                            }
                         }
                     }
                 }
@@ -768,7 +786,8 @@
                         "enum": [
                             "going",
                             "maybe",
-                            "not_going"
+                            "not_going",
+                            "pending"
                         ]
                     }
                 }
