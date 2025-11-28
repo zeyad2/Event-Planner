@@ -1,0 +1,436 @@
+{
+	"info": {
+		"_postman_id": "a292ff2d-d0e9-4d9a-8212-67fa739402aa",
+		"name": "Event Planner API (Design Spec)",
+		"description": "API design for the Event Planner application, enabling users to organize and attend events.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10472620",
+		"_collection_link": "https://techloop.postman.co/workspace/practical~22d20fb6-7773-4c4b-8705-471559484ab1/collection/10472620-a292ff2d-d0e9-4d9a-8212-67fa739402aa?action=share&source=collection_link&creator=10472620"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register a new user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"helloWorld5\",\n  \"email\": \"@example.com\",\n  \"password\": \"string\",\n  \"role\": \"organizer\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email_or_username\": \"helloWorld\",\n  \"password\": \"string\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get current user profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmdnIiwiaWQiOjEsImV4cCI6MTc2NDkyMDkyN30.nbkC1ki-TWT3TsU9A5Mv0WVpBTzS9pQJthRi5HWQwxg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Events",
+			"item": [
+				{
+					"name": "Create a new event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"newagain2026\",\n  \"description\": \"string\",\n  \"event_starts_at\": \"2026-11-01T00:00:00Z\",\n  \"event_ends_at\": \"2026-12-01T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get event details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List events",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "startsAt",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "endsAt",
+									"value": "2025-11-28T13:34:04.753541",
+									"disabled": true
+								},
+								{
+									"key": "user_role",
+									"value": "user",
+									"disabled": true
+								},
+								{
+									"key": "skip",
+									"value": "0",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "isOrganizer",
+									"value": "true/false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update an event",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"string\",\n  \"description\": \"gg\",\n  \"event_starts_at\": \"2023-01-01T00:00:00Z\",\n  \"event_ends_at\": \"2023-02-01T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete an event",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Attendees",
+			"item": [
+				{
+					"name": "List event attendees",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id/attendees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id",
+								"attendees"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite users to event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"emails\": [\n    \"1@example.com\",\n    \"2@example.com\",\n    \"4@example.com\",\n    \"userer@example.com\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id/attendees/invite",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id",
+								"attendees",
+								"invite"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update attendance status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{inviteeToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"maybe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/events/:id/attendees/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"events",
+								":id",
+								"attendees",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZWxsb1dvcmxkIiwiaWQiOjIsImV4cCI6MTc2NDk1MzQyM30.zCzb93ZhXkYUDWw5tcNibLiQhRRlV-_x1gPnQrnpfGU",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8002"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "inviteeToken",
+			"value": ""
+		}
+	]
+}

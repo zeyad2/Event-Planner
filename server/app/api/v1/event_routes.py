@@ -59,6 +59,10 @@ async def list_events(
     ).filter(or_(Event.organizer_user_id == current_user.id, EventInvitee.user_id == current_user.id))
 
 
+
+    if keyword:
+        query = query.filter(or_(Event.title.ilike(f"%{keyword}%"), Event.description.ilike(f"%{keyword}%")))
+    
     # if organizer only filter by organizer
     if user_role == "organizer":
         query = query.filter(Event.organizer_user_id == current_user.id)

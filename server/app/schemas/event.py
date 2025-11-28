@@ -82,11 +82,3 @@ class EventListItem(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class PaginatedEventList(BaseModel):
-    total: int
-    limit: int
-    skip: int
-    total_pages: int
-    events: List[EventListItem]
