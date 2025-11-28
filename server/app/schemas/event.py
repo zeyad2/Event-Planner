@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
-from app.models.eventModel import InviteeStatus
+from app.models.eventModel import InviteeStatus, InviteeRole
 
 
 class EventBase(BaseModel):
@@ -43,3 +43,23 @@ class InviteResponse(BaseModel):
 
 class StatusUpdate(BaseModel):
     status: InviteeStatus
+
+
+class AttendeeUser(BaseModel):
+    id: int
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+
+class AttendeeOut(BaseModel):
+    user: AttendeeUser
+    role: InviteeRole
+    status: InviteeStatus
+    invited_at: datetime
+    status_updated_at: datetime
+
+    class Config:
+        from_attributes = True

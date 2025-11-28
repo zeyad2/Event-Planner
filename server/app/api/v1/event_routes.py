@@ -5,7 +5,7 @@ from datetime import datetime
 from ...db.session import SessionLocal
 from ...models.eventModel import Event, EventInvitee
 from ...models.userModel import User
-from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse, StatusUpdate
+from ...schemas.event import EventCreate, EventUpdate, EventOut, InviteRequest, InviteResponse, StatusUpdate, AttendeeOut
 from .dependencies import require_organizer
 from .auth_routes import get_current_user
 
@@ -211,3 +211,31 @@ async def update_attendance_status(
     
     return {"status": invitation.status.value}
 
+
+@router.get("/{event_id}/attendees", status_code=status.HTTP_200_OK, response_model=List[AttendeeOut])
+async def list_event_attendees(
+    event_id: int,
+    db: db_dependency,
+    current_user: organizer_dependency
+):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"event with id {event_id} not found")
+    
+    if event.organizer_user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="permession not allowed, user is not the organizer")
+    
+    invitees = db.query(EventInvitee).filter(EventInvitee.event_id == event_id).all()
+    
+    attendees = []
+    for invitee in invitees:
+        attendees.append(AttendeeOut(
+            user=invitee.user,
+            role=invitee.role,
+            status=invitee.status,
+            invited_at=invitee.created_at,
+            status_updated_at=invitee.status_last_changed_at
+        ))
+    
+    return attendees
