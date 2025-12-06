@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # postgres service
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: event-planner-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: event_planner
+    volumes:
+      - db-volume:/var/lib/postgresql/data
+    networks:
+      - backend_db_net
+    ports:
+      - "5433:5432"
+
+  # backend
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: event-planner-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres-db:5432/event_planner
+      SECRET_KEY: my-super-secret-key
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_DAYS: 7
+    volumes:
+      # mount volumes for hot reload
+      - ./server:/usr/src/app
+    networks:
+      - backend_db_net
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres-db
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # front
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: event-planner-frontend
+    volumes:
+      - ./client:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+# volumes
+volumes:
+  db-volume:
+    name: db-volume
+    driver: local
+
+# networks
+networks:
+  backend_db_net:
+    name: backend_db_net
+    driver: bridge
