@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+  
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: Events
+      
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: on-failure
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:123@db:5432/Events
+      SECRET_KEY: "a9f3g8h2j4k6l7m9n0p1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e6f7g8h9i0j1k21"
+      ACCESS_TOKEN_EXPIRE_DAYS: 7
+      ALGORITHM: HS256
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./server:/app
+
+volumes:
+  pgdata:
+
