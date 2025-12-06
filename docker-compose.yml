@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # postgres service
   postgres-db:
-    image: postgres:15-alpine
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     container_name: event-planner-db
     environment:
       POSTGRES_USER: postgres
