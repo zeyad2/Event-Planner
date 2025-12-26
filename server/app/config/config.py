@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
 # Create a single settings instance to import anywhere
 settings = Settings()
-
+print("DATABASE_URL", settings.DATABASE_URL)
 if settings.DEBUG:
     print(f"Loading .env from: {ENV_FILE}")
     print(f"DATABASE_URL loaded: {'Yes' if settings.DATABASE_URL else 'No'}")

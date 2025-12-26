@@ -46,7 +46,7 @@ const CreateEventPage = () => {
       console.error("Error creating event:", err);
       setApiError(
         err.response?.data?.detail ||
-          "Failed to create event. Please try again."
+        "Failed to create event. Please try again."
       );
     } finally {
       setLoading(false);
