@@ -6,5 +6,4 @@ RUN npm ci --ignore-scripts && \
 COPY . .
 RUN chown -R node:node /usr/src/app
 EXPOSE 5173
-USER node
 CMD ["npm", "run", "dev"]
