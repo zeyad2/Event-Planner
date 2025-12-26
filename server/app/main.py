@@ -18,12 +18,18 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Event Planner")
 
+origins = [
+    "http://frontend-zeyadmohamed1-dev.apps.rm3.7wse.p1.openshiftapps.com",
+    "https://frontend-zeyadmohamed1-dev.apps.rm3.7wse.p1.openshiftapps.com",
+    "http://localhost:5173", # Keep this for local dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # This allows any website to talk to your API
+    allow_origins=origins, # Or use ["*"] to allow EVERYTHING (easier for testing)
     allow_credentials=True,
-    allow_methods=["*"],  # Allows GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],  # Allows all headers (Authorization, Content-Type, etc.)
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/health")
