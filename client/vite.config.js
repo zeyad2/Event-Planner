@@ -4,12 +4,12 @@ import tailwindcssPlugin from "@tailwindcss/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcssPlugin()],
+  plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 5173,
-    watch: {
-      usePolling: true
-    }
+    allowedHosts: [
+      'frontend-zeyadmohamed1-dev.apps.rm3.7wse.p1.openshiftapps.com'
+    ]
   }
-});
+})
